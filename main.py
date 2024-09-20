@@ -1,4 +1,5 @@
-class bcolors:
+from sys import argv
+class rainbow:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
     OKCYAN = '\033[96m'
@@ -9,21 +10,21 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
     def printWarning(text):
-        print(bcolors.WARNING + text + bcolors.ENDC)
+        print(rainbow.WARNING + text + rainbow.ENDC)
     def printError(text):
-        print(bcolors.FAIL + text + bcolors.ENDC)
+        print(rainbow.FAIL + text + rainbow.ENDC)
     def printSuccess(text):
-        print(bcolors.OKGREEN + text + bcolors.ENDC)
+        print(rainbow.OKGREEN + text + rainbow.ENDC)
     def printInfo(text):
-        print(bcolors.OKBLUE + text + bcolors.ENDC)
+        print(rainbow.OKBLUE + text + rainbow.ENDC)
     def printHeader(text):
-        print(bcolors.HEADER + text + bcolors.ENDC)
+        print(rainbow.HEADER + text + rainbow.ENDC)
     def printCyan(text):
-        print(bcolors.OKCYAN + text + bcolors.ENDC)
+        print(rainbow.OKCYAN + text + rainbow.ENDC)
     def printBold(text):
-        print(bcolors.BOLD + text + bcolors.ENDC)
+        print(rainbow.BOLD + text + rainbow.ENDC)
     def printUnderline(text):
-        print(bcolors.UNDERLINE + text + bcolors.ENDC)
+        print(rainbow.UNDERLINE + text + rainbow.ENDC)
 #---------------------------------------------------
 
 # Prompts -
@@ -34,53 +35,101 @@ class prompts:
     inputLoad = 'Enter the load on the beam (kN): '
     inputMaterial = 'Enter the material of the beam: '
     inputSupport = 'Enter the type of support: '
+    tShape = '\
+|-----------------|\n\
+|                 |\n\
+|                 |\n\
+|----         ----|\n\
+     |       |\n\
+     |       |\n\
+     |       |\n\
+     ---------\n'
+    iShape ='\
+|-----------------|\n\
+|                 |\n\
+|                 |\n\
+|----         ----|\n\
+     |       |\n\
+     |       |\n\
+     |       |\n\
+|----         ----|\n\
+|                 |\n\
+|                 |\n\
+|-----------------|\n'
+    lShape ='\
+------------------|\n\
+|                 |\n\
+|                 |\n\
+|       ----------|\n\
+|       |\n\
+|       |\n\
+|       |\n\
+|       |\n\
+|       |\n\
+---------\n'
+    allTogether = '\
+1) |-----------------|       2) |-----------------|      3) ------------------|\n\
+   |                 |          |                 |         |                 |\n\
+   |                 |          |                 |         |                 |\n\
+   |----         ----|          |----         ----|         |       ----------|\n\
+        |       |                    |       |              |       |\n\
+        |       |                    |       |              |       |\n\
+        |       |                    |       |              |       |\n\
+        ---------               |----         ----|         |       |\n\
+                                |                 |         |       |\n\
+                                |                 |         |       |\n\
+                                |-----------------|         ---------\n\
+     1) T Shaped Beam             2) I Shaped Beam          3) L Shaped Beam\n\n\
+Please enter the number of the shape you want to analyse: '
     numberError = 'Please enter a valid number.'
-    infoText = '\
-Hello, I am Sujas Kumar Aggarwal, 2022CE11047. This is my submission for CVL243 Assignment. \n\
+    infoText = '\n\
+Hello, I am \033[1mSujas Kumar Aggarwal\033[0m\033[93m,2022CE11047.\nThis is my submission for CVL243 Assignment. \n\
 This python programme is made to conduct flexural sectional analysis for a flanged and singly reinforced beam.\n\
 This programme will ask you for the following details: \n\
-1. Length of the beam (meters) \n\
-2. Width of the beam (meters) \n\
-3. Height of the beam (meters) \n\
-4. Load on the beam (kN) \n\
-5. Material of the beam \n\
-6. Type of support \n\
+0. Shape of the Beam i.e I\n\
+1. Width of The Beam (mm) \n\
+2. Web Width of the beam (mm) \n\
+3. Depth of the beam (mm) \n\
+4. Effective Depth (mm) \n\
+5. Flexural Rigidity (N-m^2)  \n\
+6. Diameter of Reinforcement (mm)\n\
+7. Number of Reinforcement \n\
 After entering these details, the programme will calculate the following: \n\
-1. Area of the beam \n\
-2. Moment of Inertia of the beam \n\
-3. Maximum Bending Stress \n'
-    helpText = 'Note: Enter "exit" to quit or "help" to see options.'
+1. Location of Neutral Axis \n\
+2. Ultimate bending Moment of the Beam\n\
+3. Reinforcement Type i.e OverReinforced \n'
+    helpText = 'Note: Enter "exit" to quit or "help" to know more.'
     def programmeInput(prompt=""):
-        bcolors.printBold(prompt)
-        a = input()
+        rainbow.printBold(prompt)
+        a = input() or " "
         if a == 'exit':
             exit()
         if a == 'help':
-            bcolors.printInfo(prompts.infoText)
-            return prompts.programmeInput()
+            rainbow.printWarning(prompts.infoText)
+            return prompts.programmeInput(prompt)
         return a
-    def takeNumericInput(prompt,additionCheck = lambda x: True):
+    def validateInput(prompt,checks = lambda x: True,errorMessage = 'Please enter a valid input.',canBeEmpty = False):
         a = prompts.programmeInput(prompt)
-        if (not a.isnumeric()) and additionCheck(a):
-            bcolors.printError(prompts.numberError)
-            bcolors.printInfo(prompts.helpText)
-            return prompts.takeNumericInput(prompt)
-        else:
+        if (a==" ") and canBeEmpty:
+            return " "
+        if checks(a) and not a==" ":
             a = int(a)
+        else:
+            rainbow.printError(errorMessage)
+            rainbow.printInfo(prompts.helpText)
+            return prompts.validateInput(prompt,checks,errorMessage)
         return a
 #---------------------------------------------------
-lenBeam = prompts.takeNumericInput(prompts.inputLength)
-widthBeam = prompts.takeNumericInput(prompts.inputWidth)
-heightBeam = prompts.takeNumericInput(prompts.inputHeight)
-loadBeam = prompts.takeNumericInput(prompts.inputLoad)
-materialBeam = prompts.takeNumericInput(prompts.inputMaterial)
-supportBeam = prompts.takeNumericInput(prompts.inputSupport)
-bcolors.printSuccess('Beam Details:')
-print('Length: ' + str(lenBeam) + ' meters')
-print('Width: ' + str(widthBeam) + ' meters')
-print('Height: ' + str(heightBeam) + ' meters')
-print('Load: ' + str(loadBeam) + ' kN')
-print('Material: ' + str(materialBeam))
-print('Support: ' + str(supportBeam))
-bcolors.printInfo('Beam Details have been recorded.')
-bcolors.printInfo('Calculating...')
+# lenBeam = prompts.validateInput(prompts.inputLength)
+def main():
+
+    shape = prompts.validateInput(prompts.allTogether, lambda x: x.isnumeric() and x in ['1','2','3'])
+if __name__=="__main__":
+    if len(argv)>1:
+        if argv[1] == '--help':
+            rainbow.printWarning(prompts.infoText)
+            exit()
+    try:
+        main()
+    except Exception as e:
+        rainbow.printError("Unfortunately, Some Unforseen Erorr Occured. Please try again.")

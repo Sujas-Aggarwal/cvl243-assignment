@@ -152,7 +152,15 @@ After entering these details, the programme will calculate the following: \n\
             return prompts.validateInput(prompt,checks,errorMessage)
         return a
 #---------------------------------------------------
-# lenBeam = prompts.validateInput(prompts.inputLength)
+#Solving Algorithms -
+class solve:
+    def tSolver(width,depth,webWidth,effectiveDepth,flexuralRigidity,diameterReinforcement,numberReinforcement):
+        pass
+    def iSolver(width,depth,webWidth,effectiveDepth,flexuralRigidity,diameterReinforcement,numberReinforcement):
+        pass
+    def lSolver(width,depth,webWidth,effectiveDepth,flexuralRigidity,diameterReinforcement,numberReinforcement):
+        pass
+#---------------------------------------------------
 def main(shape=None,width=None,depth=None,webWidth=None,effectiveDepth=None,flexuralRigidity=None,diameterReinforcement=None,numberReinforcement=None):
     rainbow.printHeader('Flexural Sectional Analysis')
     rainbow.printWarning(prompts.infoText)

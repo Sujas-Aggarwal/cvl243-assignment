@@ -1,4 +1,3 @@
-from sys import argv
 class rainbow:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -29,44 +28,71 @@ class rainbow:
 
 # Prompts -
 class prompts:
-    inputLength = 'Enter the length of the beam (meters): '
-    inputWidth = 'Enter the width of the beam (meters): '
-    inputHeight = 'Enter the height of the beam (meters): '
-    inputLoad = 'Enter the load on the beam (kN): '
-    inputMaterial = 'Enter the material of the beam: '
-    inputSupport = 'Enter the type of support: '
-    tShape = '\
-|-----------------|\n\
-|                 |\n\
-|                 |\n\
-|----         ----|\n\
-     |       |\n\
-     |       |\n\
-     |       |\n\
-     ---------\n'
-    iShape ='\
-|-----------------|\n\
-|                 |\n\
-|                 |\n\
-|----         ----|\n\
-     |       |\n\
-     |       |\n\
-     |       |\n\
-|----         ----|\n\
-|                 |\n\
-|                 |\n\
-|-----------------|\n'
-    lShape ='\
-------------------|\n\
-|                 |\n\
-|                 |\n\
-|       ----------|\n\
-|       |\n\
-|       |\n\
-|       |\n\
-|       |\n\
-|       |\n\
----------\n'
+    inputWidth = 'Enter the width of the beam (mm): '
+    inputDepth = 'Enter the depth of the beam (mm): '
+    inputWebWidth = 'Enter the web width of the beam (mm): '
+    inputEffectiveDepth = 'Enter the effective depth of the beam (mm): '
+    inputFlexuralRigidity = 'Enter the flexural rigidity of the beam (GN-m^2): '
+    inputDiameterReinforcement = 'Enter the diameter of the reinforcement (mm): '
+    inputNumberReinforcement = 'Enter the number of reinforcement: '
+    tShape = lambda x: f'\
+ <--------- W = {x[0]}mm ----------->\n\
+|---------------------------------|    ^             ^\n\
+|                                 |    |             |\n\
+|                                 |    |             |\n\
+|                                 |    |             |\n\
+|                                 |    |             |\n\
+|                                 |    |             |\n\
+|----------             ----------|  D = {x[1]}mm    ED = {x[3]}mm\n\
+          |             |              |             |\n\
+          |             |              |             |\n\
+          |             |              |             |\n\
+          |             |              |             |\n\
+          |             |              |             |\n\
+          |  *   *   *  |              |             -\n\
+          |             |              |      \n\
+          |             |              |      \n\
+          |             |              |      \n\
+          ---------------              -     \n\
+         <- WW = {x[2]}mm ->\n'
+    iShape = lambda x: f'\
+ <--------- W = {x[0]}mm ----------->\n\
+|---------------------------------|     ^             ^\n\
+|                                 |     |             |\n\
+|                                 |     |             |\n\
+|                                 |     |             |\n\
+|                                 |     |             |\n\
+|-------                   -------|     |             |\n\
+        |                 |             |             |\n\
+        |                 |        D = {x[1]}mm    ED = {x[2]}mm\n\
+        |                 |             |             |\n\
+        |                 |             |             |\n\
+|-------                   -------|     |             |\n\
+|                                 |     |             |\n\
+|            *   *   *            |     |             -\n\
+|                                 |     |             \n\
+|                                 |     |             \n\
+|---------------------------------|     -             \n\
+         <- WW = {x[2]}mm ->\n'
+    lShape = lambda x: f'\
+ <--------- W = {x[0]}mm ------>\n\
+-------------------------------|         ^             ^\n\
+|                              |         |             |\n\
+|                              |         |             |\n\
+|                              |         |             |\n\
+|                              |         |             |\n\
+|                              |         |             |\n\
+|                              |         |             |\n\
+|                  ------------|         |             |\n\
+|                  |                     D = {x[1]}mm  ED = {x[2]}mm\n\
+|                  |                     |             |\n\
+|                  |                     |             |\n\
+|    *    *    *   |                     |             -\n\
+|                  |                     |             \n\
+|                  |                     |             \n\
+|                  |                     |             \n\
+--------------------                     -             \n\
+<- WW = {x[2]}mm ->\n'
     allTogether = '\
 1) |-----------------|       2) |-----------------|      3) ------------------|\n\
    |                 |          |                 |         |                 |\n\
@@ -91,7 +117,7 @@ This programme will ask you for the following details: \n\
 2. Web Width of the beam (mm) \n\
 3. Depth of the beam (mm) \n\
 4. Effective Depth (mm) \n\
-5. Flexural Rigidity (N-m^2)  \n\
+5. Flexural Rigidity (GN-m^2)  \n\
 6. Diameter of Reinforcement (mm)\n\
 7. Number of Reinforcement \n\
 After entering these details, the programme will calculate the following: \n\
@@ -101,35 +127,71 @@ After entering these details, the programme will calculate the following: \n\
     helpText = 'Note: Enter "exit" to quit or "help" to know more.'
     def programmeInput(prompt=""):
         rainbow.printBold(prompt)
-        a = input() or " "
+        a = input() or None
         if a == 'exit':
             exit()
         if a == 'help':
             rainbow.printWarning(prompts.infoText)
             return prompts.programmeInput(prompt)
         return a
-    def validateInput(prompt,checks = lambda x: True,errorMessage = 'Please enter a valid input.',canBeEmpty = False):
+    def validateInput(prompt,checks = lambda x: True,errorMessage = 'Please enter a valid input.',canBeEmpty = False,preValue = None):
+        if not preValue == None:
+            rainbow.printCyan(f'Default Value: {preValue}')
         a = prompts.programmeInput(prompt)
-        if (a==" ") and canBeEmpty:
-            return " "
-        if checks(a) and not a==" ":
-            a = int(a)
-        else:
+        if a==None:
+            a = preValue
+        if (a==None) and canBeEmpty:
+            return a
+        elif (a==None) and not canBeEmpty:
+            rainbow.printError(errorMessage)
+            rainbow.printInfo(prompts.helpText)
+            return prompts.validateInput(prompt,checks,errorMessage)
+        if not (checks(a) and not a==None):
             rainbow.printError(errorMessage)
             rainbow.printInfo(prompts.helpText)
             return prompts.validateInput(prompt,checks,errorMessage)
         return a
 #---------------------------------------------------
 # lenBeam = prompts.validateInput(prompts.inputLength)
-def main():
+def main(shape=None,width=None,depth=None,webWidth=None,effectiveDepth=None,flexuralRigidity=None,diameterReinforcement=None,numberReinforcement=None):
+    rainbow.printHeader('Flexural Sectional Analysis')
+    rainbow.printWarning(prompts.infoText)
+    rainbow.printInfo(prompts.helpText)
+    shape = prompts.validateInput(prompts.allTogether, lambda x: x.isnumeric() and int(x) in [1,2,3],preValue=shape)
+    width = prompts.validateInput(prompts.inputWidth, lambda x: x.isnumeric() and int(x)>0,preValue=width)
+    depth = prompts.validateInput(prompts.inputDepth, lambda x: x.isnumeric() and int(x)>0,preValue=depth)
+    webWidth = prompts.validateInput(prompts.inputWebWidth, lambda x: x.isnumeric() and int(x)>0,preValue=webWidth)
+    effectiveDepth = prompts.validateInput(prompts.inputEffectiveDepth, lambda x: x.isnumeric() and int(x)>0,preValue=effectiveDepth)
+    flexuralRigidity = prompts.validateInput(prompts.inputFlexuralRigidity, lambda x: x.isnumeric() and int(x)>0,preValue=flexuralRigidity)
+    diameterReinforcement = prompts.validateInput(prompts.inputDiameterReinforcement, lambda x: x.isnumeric() and int(x)>0,preValue=diameterReinforcement)
+    numberReinforcement = prompts.validateInput(prompts.inputNumberReinforcement, lambda x: x.isnumeric() and int(x)>0,preValue=numberReinforcement)
+    if int(shape)==1:
+        rainbow.printBold(prompts.tShape([width,depth,webWidth,effectiveDepth]))
+    elif int(shape)==2:
+        rainbow.printBold(prompts.iShape([width,depth,webWidth]))
+    elif int(shape)==3:
+        rainbow.printBold(prompts.lShape([width,depth,effectiveDepth]))
+    rainbow.printInfo(f'Width of the beam:\033[0m {width}mm')
+    rainbow.printInfo(f'Depth of the beam:\033[0m {depth}mm')
+    rainbow.printInfo(f'Web Width of the beam:\033[0m {webWidth}mm')
+    rainbow.printInfo(f'Effective Depth of the beam: \033[0m{effectiveDepth}mm')
+    rainbow.printInfo(f'Flexural Rigidity of the beam: \033[0m{flexuralRigidity}GN-m^2')
+    rainbow.printInfo(f'Diameter of the Reinforcement: \033[0m{diameterReinforcement}mm')
+    rainbow.printInfo(f'Number of Reinforcement:\033[0m {numberReinforcement}')
+    rainbow.printInfo(f'Shape of the Beam: \033[0m{shape}')
+    confirm = prompts.validateInput('Are the inputs correct? (y/n): ', lambda x: x in ['y','n'],canBeEmpty=True)
+    if confirm == 'n':
+        rainbow.printError('Please enter the inputs again.')
+        main(shape,width,depth,webWidth,effectiveDepth,flexuralRigidity,diameterReinforcement,numberReinforcement)
+    else:
+        rainbow.printSuccess('The inputs have been successfully confirmed.')
 
-    shape = prompts.validateInput(prompts.allTogether, lambda x: x.isnumeric() and x in ['1','2','3'])
 if __name__=="__main__":
-    if len(argv)>1:
-        if argv[1] == '--help':
-            rainbow.printWarning(prompts.infoText)
-            exit()
     try:
         main()
     except Exception as e:
+        try:
+            print(e)
+        except:
+            pass
         rainbow.printError("Unfortunately, Some Unforseen Erorr Occured. Please try again.")

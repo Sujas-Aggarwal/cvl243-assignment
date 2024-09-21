@@ -75,7 +75,7 @@ class prompts:
 |---------------------------------|     -             \n\
          <- WW = {x[2]}mm ->\n'
     lShape = lambda x: f'\
- <--------- W = {x[0]}mm ------>\n\
+ <--------- W = {x[0]}mm ------->\n\
 -------------------------------|         ^             ^\n\
 |                              |         |             |\n\
 |                              |         |             |\n\
@@ -84,7 +84,7 @@ class prompts:
 |                              |         |             |\n\
 |                              |         |             |\n\
 |                  ------------|         |             |\n\
-|                  |                     D = {x[1]}mm  ED = {x[2]}mm\n\
+|                  |                 D = {x[1]}mm  ED = {x[2]}mm\n\
 |                  |                     |             |\n\
 |                  |                     |             |\n\
 |    *    *    *   |                     |             -\n\
@@ -92,7 +92,7 @@ class prompts:
 |                  |                     |             \n\
 |                  |                     |             \n\
 --------------------                     -             \n\
-<- WW = {x[2]}mm ->\n'
+<-  WW = {x[2]}mm  ->\n'
     allTogether = '\
 1) |-----------------|       2) |-----------------|      3) ------------------|\n\
    |                 |          |                 |         |                 |\n\
@@ -145,11 +145,11 @@ After entering these details, the programme will calculate the following: \n\
         elif (a==None) and not canBeEmpty:
             rainbow.printError(errorMessage)
             rainbow.printInfo(prompts.helpText)
-            return prompts.validateInput(prompt,checks,errorMessage)
+            return prompts.validateInput(prompt,checks,errorMessage,preValue=preValue)
         if not (checks(a) and not a==None):
             rainbow.printError(errorMessage)
             rainbow.printInfo(prompts.helpText)
-            return prompts.validateInput(prompt,checks,errorMessage)
+            return prompts.validateInput(prompt,checks,errorMessage,preValue=preValue)
         return a
 #---------------------------------------------------
 #Solving Algorithms -

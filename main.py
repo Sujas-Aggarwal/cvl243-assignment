@@ -145,11 +145,11 @@ After entering these details, the programme will calculate the following: \n\
         elif (a==None) and not canBeEmpty:
             rainbow.printError(errorMessage)
             rainbow.printInfo(prompts.helpText)
-            return prompts.validateInput(prompt,checks,errorMessage,preValue=preValue)
+            return prompts.validateInput(prompt,checks,errorMessage,canBeEmpty,preValue=preValue)
         if not (checks(a) and not a==None):
             rainbow.printError(errorMessage)
             rainbow.printInfo(prompts.helpText)
-            return prompts.validateInput(prompt,checks,errorMessage,preValue=preValue)
+            return prompts.validateInput(prompt,checks,errorMessage,canBeEmpty,preValue=preValue)
         return a
 #---------------------------------------------------
 #Solving Algorithms -
@@ -162,9 +162,7 @@ class solve:
         pass
 #---------------------------------------------------
 def main(shape=None,width=None,depth=None,webWidth=None,effectiveDepth=None,flexuralRigidity=None,diameterReinforcement=None,numberReinforcement=None):
-    rainbow.printHeader('Flexural Sectional Analysis')
-    rainbow.printWarning(prompts.infoText)
-    rainbow.printInfo(prompts.helpText)
+
     shape = prompts.validateInput(prompts.allTogether, lambda x: x.isnumeric() and int(x) in [1,2,3],preValue=shape)
     width = prompts.validateInput(prompts.inputWidth, lambda x: x.isnumeric() and int(x)>0,preValue=width)
     depth = prompts.validateInput(prompts.inputDepth, lambda x: x.isnumeric() and int(x)>0,preValue=depth)
@@ -196,6 +194,9 @@ def main(shape=None,width=None,depth=None,webWidth=None,effectiveDepth=None,flex
 
 if __name__=="__main__":
     try:
+        rainbow.printHeader('Flexural Sectional Analysis')
+        rainbow.printWarning(prompts.infoText)
+        rainbow.printInfo(prompts.helpText)
         main()
     except Exception as e:
         try:

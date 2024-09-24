@@ -30,20 +30,23 @@ class rainbow:
 class prompts:
     inputWidth = 'Enter the width of the beam (mm): '
     inputDepth = 'Enter the depth of the beam (mm): '
+    inputCGrade= 'Enter the Concrete Grade (MPa): '
+    inputSGrade = 'Enter the Reinforcement Grade (MPa): '
     inputWebWidth = 'Enter the web width of the beam (mm): '
+    inputDepthFlang = 'Enter the Flang Depth of the beam (mm): '
     inputEffectiveDepth = 'Enter the effective depth of the beam (mm): '
     inputFlexuralRigidity = 'Enter the flexural rigidity of the beam (GN-m^2): '
     inputDiameterReinforcement = 'Enter the diameter of the reinforcement (mm): '
     inputNumberReinforcement = 'Enter the number of reinforcement: '
     tShape = lambda x: f'\
  <--------- W = {x[0]}mm ----------->\n\
-|---------------------------------|    ^             ^\n\
-|                                 |    |             |\n\
-|                                 |    |             |\n\
-|                                 |    |             |\n\
-|                                 |    |             |\n\
-|                                 |    |             |\n\
-|----------             ----------|  D = {x[1]}mm    ED = {x[3]}mm\n\
+|---------------------------------|    ^             ^                  ^\n\
+|                                 |    |             |                  |\n\
+|                                 |    |             |                  |\n\
+|                                 |    |             |              DF = {x[4]}mm\n\
+|                                 |    |             |                  |\n\
+|                                 |    |             |                  |\n\
+|----------             ----------|  D = {x[1]}mm    ED = {x[3]}mm      -\n\
           |             |              |             |\n\
           |             |              |             |\n\
           |             |              |             |\n\
@@ -57,12 +60,12 @@ class prompts:
          <- WW = {x[2]}mm ->\n'
     iShape = lambda x: f'\
  <--------- W = {x[0]}mm ----------->\n\
-|---------------------------------|     ^             ^\n\
-|                                 |     |             |\n\
-|                                 |     |             |\n\
-|                                 |     |             |\n\
-|                                 |     |             |\n\
-|-------                   -------|     |             |\n\
+|---------------------------------|     ^             ^       ^\n\
+|                                 |     |             |       |\n\
+|                                 |     |             |       |\n\
+|                                 |     |             |   DF = {x[4]}mm\n\
+|                                 |     |             |       |\n\
+|-------                   -------|     |             |       -\n\
         |                 |             |             |\n\
         |                 |        D = {x[1]}mm    ED = {x[2]}mm\n\
         |                 |             |             |\n\
@@ -76,14 +79,14 @@ class prompts:
          <- WW = {x[2]}mm ->\n'
     lShape = lambda x: f'\
  <--------- W = {x[0]}mm ------->\n\
--------------------------------|         ^             ^\n\
-|                              |         |             |\n\
-|                              |         |             |\n\
-|                              |         |             |\n\
-|                              |         |             |\n\
-|                              |         |             |\n\
-|                              |         |             |\n\
-|                  ------------|         |             |\n\
+-------------------------------|         ^             ^          ^\n\
+|                              |         |             |          |\n\
+|                              |         |             |          |\n\
+|                              |         |             |        DF = {x[4]}mm\n\
+|                              |         |             |          |\n\
+|                              |         |             |          |\n\
+|                              |         |             |          |\n\
+|                  ------------|         |             |          -\n\
 |                  |                 D = {x[1]}mm  ED = {x[2]}mm\n\
 |                  |                     |             |\n\
 |                  |                     |             |\n\
@@ -154,42 +157,82 @@ After entering these details, the programme will calculate the following: \n\
 #---------------------------------------------------
 #Solving Algorithms -
 class solve:
-    def tSolver(width,depth,webWidth,effectiveDepth,flexuralRigidity,diameterReinforcement,numberReinforcement):
-        pass
-    def iSolver(width,depth,webWidth,effectiveDepth,flexuralRigidity,diameterReinforcement,numberReinforcement):
-        pass
-    def lSolver(width,depth,webWidth,effectiveDepth,flexuralRigidity,diameterReinforcement,numberReinforcement):
-        pass
+    typeOfBeam = 0
+    width = 0
+    grade = 0
+    cGrade = 0
+    sGrade = 0
+    depth = 0
+    webWidth = 0
+    depthFlang = 0
+    effectiveDepth = 0
+    flexuralRigidity = 0
+    diameterReinforcement = 0
+    numberReinforcement = 0
+    def __init__(self,width,depth,cGrade,sGrade,webWidth,depthFlang,effectiveDepth,flexuralRigidity,diameterReinforcement,numberReinforcement,typeOfBeam):
+        self.width = width
+        self.depth = depth
+        self.webWidth = webWidth
+        self.depthFlang = depthFlang
+        self.effectiveDepth = effectiveDepth
+        self.flexuralRigidity = flexuralRigidity
+        self.diameterReinforcement = diameterReinforcement
+        self.numberReinforcement = numberReinforcement
+        self.typeOfBeam = typeOfBeam
+        self.cGrade = cGrade
+        self.sGrade = sGrade
+        
+    def areaBeam(self):
+        if (self.typeOfBeam==1):
+            return self.depthFlang*self.width + (self.depth-self.depthFlang)*self.webWidth
+        elif (self.typeOfBeam==2):
+            return 2*self.depthFlang*self.width + (self.depth-2*self.depthFlang)*self.webWidth
+        return self.depthFlang*self.width + (self.depth-self.depthFlang)*self.webWidth
+    def areaReinforcement(self):
+        return (3.14159*(self.diameterReinforcement**2)/4)*self.numberReinforcement
+    def reinforcementRatio(self):
+        return self.areaReinforcement()/self.areaBeam()
+    def locationNeutralAxis(self):
+        return 
+    
+
 #---------------------------------------------------
-def main(shape=None,width=None,depth=None,webWidth=None,effectiveDepth=None,flexuralRigidity=None,diameterReinforcement=None,numberReinforcement=None):
+def main(shape=None,width=None,depth=None,cGrade = None,sGrade = None,webWidth=None,depthFlang=None,effectiveDepth=None,flexuralRigidity=None,diameterReinforcement=None,numberReinforcement=None):
 
     shape = prompts.validateInput(prompts.allTogether, lambda x: x.isnumeric() and int(x) in [1,2,3],preValue=shape)
     width = prompts.validateInput(prompts.inputWidth, lambda x: x.isnumeric() and int(x)>0,preValue=width)
     depth = prompts.validateInput(prompts.inputDepth, lambda x: x.isnumeric() and int(x)>0,preValue=depth)
+    cGrade = prompts.validateInput(prompts.inputCGrade, lambda x: x.isnumeric() and int(x)>0,preValue=cGrade)
+    sGrade = prompts.validateInput(prompts.inputSGrade, lambda x: x.isnumeric() and int(x)>0,preValue=sGrade)
     webWidth = prompts.validateInput(prompts.inputWebWidth, lambda x: x.isnumeric() and int(x)>0,preValue=webWidth)
+    depthFlang = prompts.validateInput(prompts.inputDepthFlang, lambda x: x.isnumeric() and int(x)>0,preValue=depthFlang)
     effectiveDepth = prompts.validateInput(prompts.inputEffectiveDepth, lambda x: x.isnumeric() and int(x)>0,preValue=effectiveDepth)
     flexuralRigidity = prompts.validateInput(prompts.inputFlexuralRigidity, lambda x: x.isnumeric() and int(x)>0,preValue=flexuralRigidity)
     diameterReinforcement = prompts.validateInput(prompts.inputDiameterReinforcement, lambda x: x.isnumeric() and int(x)>0,preValue=diameterReinforcement)
     numberReinforcement = prompts.validateInput(prompts.inputNumberReinforcement, lambda x: x.isnumeric() and int(x)>0,preValue=numberReinforcement)
     if int(shape)==1:
-        rainbow.printBold(prompts.tShape([width,depth,webWidth,effectiveDepth]))
+        rainbow.printBold(prompts.tShape([width,depth,webWidth,effectiveDepth,depthFlang]))
     elif int(shape)==2:
-        rainbow.printBold(prompts.iShape([width,depth,webWidth]))
+        rainbow.printBold(prompts.iShape([width,depth,webWidth,effectiveDepth,depthFlang]))
     elif int(shape)==3:
-        rainbow.printBold(prompts.lShape([width,depth,effectiveDepth]))
+        rainbow.printBold(prompts.lShape([width,depth,webWidth,effectiveDepth,depthFlang]))
     rainbow.printInfo(f'Width of the beam:\033[0m {width}mm')
     rainbow.printInfo(f'Depth of the beam:\033[0m {depth}mm')
+    rainbow.printInfo(f'Grade of Concrete: \033[0m{cGrade}MPa')
+    rainbow.printInfo(f'Grade of Steel: \033[0m{sGrade}MPa')
     rainbow.printInfo(f'Web Width of the beam:\033[0m {webWidth}mm')
+    rainbow.printInfo(f'Depth Flang of the beam:\033[0m {depthFlang}mm')
     rainbow.printInfo(f'Effective Depth of the beam: \033[0m{effectiveDepth}mm')
     rainbow.printInfo(f'Flexural Rigidity of the beam: \033[0m{flexuralRigidity}GN-m^2')
     rainbow.printInfo(f'Diameter of the Reinforcement: \033[0m{diameterReinforcement}mm')
     rainbow.printInfo(f'Number of Reinforcement:\033[0m {numberReinforcement}')
-    rainbow.printInfo(f'Shape of the Beam: \033[0m{shape}')
+
     confirm = prompts.validateInput('Are the inputs correct? (y/n): ', lambda x: x in ['y','n'],canBeEmpty=True)
     if confirm == 'n':
         rainbow.printError('Please enter the inputs again.')
-        main(shape,width,depth,webWidth,effectiveDepth,flexuralRigidity,diameterReinforcement,numberReinforcement)
+        main(shape,width,depth,webWidth,depthFlang,effectiveDepth,flexuralRigidity,diameterReinforcement,numberReinforcement)
     else:
+        solution = solve(width,depth,cGrade,sGrade,webWidth,depthFlang,effectiveDepth,flexuralRigidity,diameterReinforcement,numberReinforcement,shape)
         rainbow.printSuccess('The inputs have been successfully confirmed.')
 
 if __name__=="__main__":

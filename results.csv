@@ -1,0 +1,4 @@
+S. No.,Type of Beam,Width (mm),Depth (mm),Concrete Grade (MPa),Steel Grade (MPa),Web Width (mm),Flang Depth (mm),Effective Depth (mm),Flexural Rigidity (GN-m^2),Reinforcement Diameter (mm),Number of Reinforcement,Area of Beam (mm^2),Area of Reinforcement (mm^2),Neutral Axis Depth (mm),Ultimate Bending Moment (N-m^2),Type of Reinforcement
+1,I Shape,2,2,2,2,2,2,2,2,2,2,4,6.28318,8.678425414364641,1.0,OverReinforced
+2,I Shape,1,232,323,23,1,1,23,2,31,13,232,9811.9709675,1930.0697214691343,0.08695652173913043,OverReinforced
+3,L Shape,232,32,32,42,23,2,32,3,232,3,1154,126819.70512,19969.254980783087,0.09375,OverReinforced

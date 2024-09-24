@@ -170,17 +170,18 @@ class solve:
     diameterReinforcement = 0
     numberReinforcement = 0
     def __init__(self,width,depth,cGrade,sGrade,webWidth,depthFlang,effectiveDepth,flexuralRigidity,diameterReinforcement,numberReinforcement,typeOfBeam):
-        self.width = width
-        self.depth = depth
-        self.webWidth = webWidth
-        self.depthFlang = depthFlang
-        self.effectiveDepth = effectiveDepth
-        self.flexuralRigidity = flexuralRigidity
-        self.diameterReinforcement = diameterReinforcement
-        self.numberReinforcement = numberReinforcement
-        self.typeOfBeam = typeOfBeam
-        self.cGrade = cGrade
-        self.sGrade = sGrade
+        self.width = int(width)
+        self.depth = int(depth)
+        self.webWidth = int(webWidth)
+        self.depthFlang = int(depthFlang)
+        self.effectiveDepth = int(effectiveDepth)
+        self.flexuralRigidity = int(flexuralRigidity)
+        self.diameterReinforcement = int(diameterReinforcement)
+        self.numberReinforcement = int(numberReinforcement)
+        self.typeOfBeam = int(typeOfBeam)
+        self.cGrade = int(cGrade)
+        self.sGrade = int(sGrade)
+        self.isOverReinforced = False
         
     def areaBeam(self):
         if (self.typeOfBeam==1):
@@ -192,10 +193,42 @@ class solve:
         return (3.14159*(self.diameterReinforcement**2)/4)*self.numberReinforcement
     def reinforcementRatio(self):
         return self.areaReinforcement()/self.areaBeam()
-    def locationNeutralAxis(self):
-        return 
-    
-
+    def isUnderReinforced(self):
+        if self.reinforcementRatio() > 0.04:
+            self.isOverReinforced = True
+    def ultimateBendingMoment(self):
+        return self.flexuralRigidity/self.effectiveDepth
+    def neutralAxisDepth(self):
+        if (self.isOverReinforced):
+            return (self.sGrade*self.areaReinforcement()-0.447*self.cGrade*(self.width-self.webWidth)*self.depthFlang)/(0.362*self.cGrade*self.webWidth)
+        return 0 #Under Reinforced wala sahi karna h abhi (quadratic solve karni padegi)
+    def display(self):
+        self.isUnderReinforced()
+        rainbow.printHeader('\n---------Results--------')
+        rainbow.printInfo(f'Area of the Beam:\033[0m {self.areaBeam()}mm^2')
+        rainbow.printInfo(f'Area of the Reinforcement:\033[0m {self.areaReinforcement()}mm^2')
+        rainbow.printInfo(f'Reinforcement Ratio:\033[0m {self.reinforcementRatio()}')
+        rainbow.printInfo(f'Neutral Axis Depth:\033[0m {self.neutralAxisDepth()}mm')
+        if self.isOverReinforced:
+            rainbow.printWarning('The Beam is Over Reinforced.')
+        else:
+            rainbow.printWarning('The Beam is Under Reinforced.')
+        return
+    def saveCSV(self):
+        serialNumber = 1
+        try:
+            with open('results.csv','r') as f:
+                #read the last line
+                serialNumber = int(f.readlines()[-1].split(',')[0]) + 1
+                pass
+            with open('results.csv','a') as f:
+                f.write(f'{serialNumber},{"T Shape" if self.typeOfBeam==1 else "I Shape" if self.typeOfBeam==2 else "L Shape"},{self.width},{self.depth},{self.cGrade},{self.sGrade},{self.webWidth},{self.depthFlang},{self.effectiveDepth},{self.flexuralRigidity},{self.diameterReinforcement},{self.numberReinforcement},{self.areaBeam()},{self.areaReinforcement()},{self.neutralAxisDepth()},{self.ultimateBendingMoment()},{"OverReinforced" if self.isOverReinforced else "UnderReinforced"}\n')
+        except FileNotFoundError:
+            with open('results.csv','w') as f:
+                f.write('S. No.,Type of Beam,Width (mm),Depth (mm),Concrete Grade (MPa),Steel Grade (MPa),Web Width (mm),Flang Depth (mm),Effective Depth (mm),Flexural Rigidity (GN-m^2),Reinforcement Diameter (mm),Number of Reinforcement,Area of Beam (mm^2),Area of Reinforcement (mm^2),Neutral Axis Depth (mm),Ultimate Bending Moment (N-m^2),Type of Reinforcement\n')
+                f.write(f'{serialNumber},{"T Shape" if self.typeOfBeam==1 else "I Shape" if self.typeOfBeam==2 else "L Shape"},{self.width},{self.depth},{self.cGrade},{self.sGrade},{self.webWidth},{self.depthFlang},{self.effectiveDepth},{self.flexuralRigidity},{self.diameterReinforcement},{self.numberReinforcement},{self.areaBeam()},{self.areaReinforcement()},{self.neutralAxisDepth()},{self.ultimateBendingMoment()},{"OverReinforced" if self.isOverReinforced else "UnderReinforced"}\n')
+        except Exception as e:
+            rainbow.printError("Some Error Occured, Please Delete 'results.csv' file if it already exists and try again.")
 #---------------------------------------------------
 def main(shape=None,width=None,depth=None,cGrade = None,sGrade = None,webWidth=None,depthFlang=None,effectiveDepth=None,flexuralRigidity=None,diameterReinforcement=None,numberReinforcement=None):
 
@@ -204,9 +237,9 @@ def main(shape=None,width=None,depth=None,cGrade = None,sGrade = None,webWidth=N
     depth = prompts.validateInput(prompts.inputDepth, lambda x: x.isnumeric() and int(x)>0,preValue=depth)
     cGrade = prompts.validateInput(prompts.inputCGrade, lambda x: x.isnumeric() and int(x)>0,preValue=cGrade)
     sGrade = prompts.validateInput(prompts.inputSGrade, lambda x: x.isnumeric() and int(x)>0,preValue=sGrade)
-    webWidth = prompts.validateInput(prompts.inputWebWidth, lambda x: x.isnumeric() and int(x)>0,preValue=webWidth)
-    depthFlang = prompts.validateInput(prompts.inputDepthFlang, lambda x: x.isnumeric() and int(x)>0,preValue=depthFlang)
-    effectiveDepth = prompts.validateInput(prompts.inputEffectiveDepth, lambda x: x.isnumeric() and int(x)>0,preValue=effectiveDepth)
+    webWidth = prompts.validateInput(prompts.inputWebWidth, lambda x: x.isnumeric() and int(x)>0 and x<=width,preValue=webWidth)
+    depthFlang = prompts.validateInput(prompts.inputDepthFlang, lambda x: x.isnumeric() and int(x)>0 and x<=depth,preValue=depthFlang)
+    effectiveDepth = prompts.validateInput(prompts.inputEffectiveDepth, lambda x: x.isnumeric() and int(x)>0 and x<=depth,preValue=effectiveDepth)
     flexuralRigidity = prompts.validateInput(prompts.inputFlexuralRigidity, lambda x: x.isnumeric() and int(x)>0,preValue=flexuralRigidity)
     diameterReinforcement = prompts.validateInput(prompts.inputDiameterReinforcement, lambda x: x.isnumeric() and int(x)>0,preValue=diameterReinforcement)
     numberReinforcement = prompts.validateInput(prompts.inputNumberReinforcement, lambda x: x.isnumeric() and int(x)>0,preValue=numberReinforcement)
@@ -231,9 +264,13 @@ def main(shape=None,width=None,depth=None,cGrade = None,sGrade = None,webWidth=N
     if confirm == 'n':
         rainbow.printError('Please enter the inputs again.')
         main(shape,width,depth,webWidth,depthFlang,effectiveDepth,flexuralRigidity,diameterReinforcement,numberReinforcement)
-    else:
-        solution = solve(width,depth,cGrade,sGrade,webWidth,depthFlang,effectiveDepth,flexuralRigidity,diameterReinforcement,numberReinforcement,shape)
-        rainbow.printSuccess('The inputs have been successfully confirmed.')
+    solution = solve(width,depth,cGrade,sGrade,webWidth,depthFlang,effectiveDepth,flexuralRigidity,diameterReinforcement,numberReinforcement,shape)
+    rainbow.printSuccess('The inputs have been successfully confirmed.')
+    solution.display()
+    confirmCSV = prompts.validateInput('Do you want to save the results in a CSV file? (y/n): ', lambda x: x in ['y','n'],canBeEmpty=True)
+    if not confirmCSV == 'n':
+        solution.saveCSV()
+        rainbow.printSuccess('The results have been saved in the CSV file in the current directory.')
 
 if __name__=="__main__":
     try:

@@ -196,12 +196,35 @@ class solve:
     def isUnderReinforced(self):
         if self.reinforcementRatio() > 0.04:
             self.isOverReinforced = True
-    def ultimateBendingMoment(self):
-        return self.flexuralRigidity/self.effectiveDepth
     def neutralAxisDepth(self):
-        if (self.isOverReinforced):
-            return (self.sGrade*self.areaReinforcement()-0.447*self.cGrade*(self.width-self.webWidth)*self.depthFlang)/(0.362*self.cGrade*self.webWidth)
-        return 0 #Under Reinforced wala sahi karna h abhi (quadratic solve karni padegi)
+        Ast = self.areaReinforcement()
+        fck = self.cGrade  # characteristic strength of concrete
+        fy = self.sGrade  # yield strength of steel
+        
+        if self.isOverReinforced:
+            # Over-reinforced condition (concrete crushes before steel yields)
+            return (fy * Ast - 0.447 * fck * (self.width - self.webWidth) * self.depthFlang) / (0.362 * fck * self.webWidth)
+        else:
+            # Under-reinforced condition (steel yields before concrete crushes)
+            xu_max = 0.48 * self.effectiveDepth  # Maximum neutral axis depth for under-reinforced section
+            xu = fy * Ast / (0.36 * fck * self.width)
+            return min(xu, xu_max)
+    def ultimateBendingMoment(self):
+        Ast = self.areaReinforcement()
+        fck = self.cGrade
+        fy = self.sGrade
+        d = self.effectiveDepth
+        
+        xu = self.neutralAxisDepth()  # Neutral axis depth
+        if self.isOverReinforced:
+            return "Over-reinforced section: failure will occur before steel yields."
+        
+        z = d - 0.42 * xu  # Lever arm
+        
+        # Calculate ultimate moment capacity using IS 456: 2000
+        Mu = 0.87 * fy * Ast * z / 1e6  # Convert to kNm
+        return Mu
+    
     def display(self):
         self.isUnderReinforced()
         rainbow.printHeader('\n---------Results--------')
@@ -209,6 +232,7 @@ class solve:
         rainbow.printInfo(f'Area of the Reinforcement:\033[0m {self.areaReinforcement()}mm^2')
         rainbow.printInfo(f'Reinforcement Ratio:\033[0m {self.reinforcementRatio()}')
         rainbow.printInfo(f'Neutral Axis Depth:\033[0m {self.neutralAxisDepth()}mm')
+        rainbow.printInfo(f'Ultimate Bending Moment:\033[0m {self.ultimateBendingMoment()}N-m^2')
         if self.isOverReinforced:
             rainbow.printWarning('The Beam is Over Reinforced.')
         else:

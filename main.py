@@ -67,7 +67,7 @@ class prompts:
 |                                 |     |             |       |\n\
 |-------                   -------|     |             |       -\n\
         |                 |             |             |\n\
-        |                 |        D = {x[1]}mm    ED = {x[2]}mm\n\
+        |                 |        D = {x[1]}mm    ED = {x[3]}mm\n\
         |                 |             |             |\n\
         |                 |             |             |\n\
 |-------                   -------|     |             |\n\
@@ -87,7 +87,7 @@ class prompts:
 |                              |         |             |          |\n\
 |                              |         |             |          |\n\
 |                  ------------|         |             |          -\n\
-|                  |                 D = {x[1]}mm  ED = {x[2]}mm\n\
+|                  |                 D = {x[1]}mm  ED = {x[3]}mm\n\
 |                  |                     |             |\n\
 |                  |                     |             |\n\
 |    *    *    *   |                     |             -\n\
@@ -217,7 +217,7 @@ class solve:
         
         xu = self.neutralAxisDepth()  # Neutral axis depth
         if self.isOverReinforced:
-            return "Over-reinforced section: failure will occur before steel yields."
+            return (self.sGrade*self.areaReinforcement()-0.447*self.cGrade*(self.width-self.webWidth)*self.depthFlang)/(0.362*self.cGrade*self.webWidth)
         
         z = d - 0.42 * xu  # Lever arm
         
@@ -287,7 +287,7 @@ def main(shape=None,width=None,depth=None,cGrade = None,sGrade = None,webWidth=N
     confirm = prompts.validateInput('Are the inputs correct? (y/n): ', lambda x: x in ['y','n'],canBeEmpty=True)
     if confirm == 'n':
         rainbow.printError('Please enter the inputs again.')
-        main(shape,width,depth,webWidth,depthFlang,effectiveDepth,flexuralRigidity,diameterReinforcement,numberReinforcement)
+        main(shape,width,depth,cGrade,sGrade,webWidth,depthFlang,effectiveDepth,flexuralRigidity,diameterReinforcement,numberReinforcement)
     solution = solve(width,depth,cGrade,sGrade,webWidth,depthFlang,effectiveDepth,flexuralRigidity,diameterReinforcement,numberReinforcement,shape)
     rainbow.printSuccess('The inputs have been successfully confirmed.')
     solution.display()

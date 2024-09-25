@@ -295,7 +295,7 @@ def main(shape=None,width=None,depth=None,cGrade = None,sGrade = None,webWidth=N
     if not confirmCSV == 'n':
         solution.saveCSV()
         rainbow.printSuccess('The results have been saved in the CSV file in the current directory.')
-
+    return
 if __name__=="__main__":
     try:
         rainbow.printHeader('Flexural Sectional Analysis')
